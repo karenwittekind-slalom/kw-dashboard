@@ -72,7 +72,7 @@ const props = defineProps<{
 }
 
 :global(.v-theme--light .trend-pill.negative) {
-  background: rgba(var(--v-theme-on-surface-variant), 0.08);
-  color: rgb(var(--v-theme-on-surface-variant));
+  background: rgba(var(--v-theme-error), 0.12);
+  color: rgb(var(--v-theme-error));
 }
 </style>

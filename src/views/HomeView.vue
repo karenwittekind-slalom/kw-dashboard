@@ -309,7 +309,7 @@ const selectedValueLabelPlugin = {
           : `rgb(${getComputedStyle(chart.canvas).getPropertyValue('--v-theme-success')})`
         : isDark.value
           ? '#fca5a5'
-          : `rgb(${getComputedStyle(chart.canvas).getPropertyValue('--v-theme-on-surface-variant')})`
+          : `rgb(${getComputedStyle(chart.canvas).getPropertyValue('--v-theme-error')})`
       ctx.fillText(changeLabel, left + width / 2, top + 30, width - padding)
     }
     ctx.restore()
