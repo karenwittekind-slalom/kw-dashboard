@@ -20,7 +20,7 @@ const props = defineProps<{
       </div>
 
       <div class="text-h5 font-weight-bold mb-1">{{ props.value }}</div>
-      <div class="d-flex align-center gap-2">
+      <div class="d-flex align-center trend-row">
         <span class="trend-pill" :class="props.direction >= 0 ? 'positive' : 'negative'">
           <v-icon size="14">
             {{ props.direction >= 0 ? 'mdi-arrow-up' : 'mdi-arrow-down' }}
@@ -44,6 +44,10 @@ const props = defineProps<{
 
 .icon-badge {
   opacity: 0.9;
+}
+
+.trend-row {
+  gap: 8px;
 }
 
 .trend-pill {
