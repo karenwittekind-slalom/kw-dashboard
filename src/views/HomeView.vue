@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { Bar, Line } from 'vue-chartjs'
+import MetricCard from '@/components/MetricCard.vue'
 import {
   BarElement,
   CategoryScale,
@@ -68,8 +69,6 @@ const percentChange = (current: number, previous: number) => {
   if (!previous) return 0
   return ((current - previous) / previous) * 100
 }
-
-const getTrendLabel = (value: number) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`
 
 const totals = computed(() => ({
   revenue: metrics.reduce((sum, item) => sum + item.revenue, 0),
@@ -171,8 +170,8 @@ const revenueChartData = computed(() => ({
       data: chartView.value.revenue,
       backgroundColor: chartView.value.revenue.map((_, index) =>
         selectedChartIndex.value === -1 || selectedChartIndex.value === index
-          ? 'rgba(129, 140, 248, 0.9)'
-          : 'rgba(129, 140, 248, 0.28)',
+          ? isDark.value ? 'rgba(129, 140, 248, 0.9)' : 'rgba(79, 70, 229, 0.9)'
+          : isDark.value ? 'rgba(129, 140, 248, 0.28)' : 'rgba(79, 70, 229, 0.2)',
       ),
       borderRadius: 8,
       borderSkipped: false,
@@ -187,14 +186,14 @@ const visitorsChartData = computed(() => ({
     {
       label: 'Visitors',
       data: chartView.value.visitors,
-      borderColor: '#60a5fa',
-      backgroundColor: 'rgba(96, 165, 250, 0.18)',
+      borderColor: isDark.value ? '#60a5fa' : '#2563eb',
+      backgroundColor: isDark.value ? 'rgba(96, 165, 250, 0.18)' : 'rgba(37, 99, 235, 0.12)',
       pointBackgroundColor: chartView.value.visitors.map((_, index) =>
         selectedChartIndex.value === -1 || selectedChartIndex.value === index
-          ? '#7dd3fc'
-          : 'rgba(96, 165, 250, 0.35)',
+          ? isDark.value ? '#7dd3fc' : '#2563eb'
+          : isDark.value ? 'rgba(96, 165, 250, 0.35)' : 'rgba(37, 99, 235, 0.45)',
       ),
-      pointBorderColor: '#e0f2fe',
+      pointBorderColor: isDark.value ? '#e0f2fe' : '#ffffff',
       pointRadius: chartView.value.visitors.map((_, index) =>
         selectedChartIndex.value === index ? 7 : 3,
       ),
@@ -213,14 +212,14 @@ const conversionChartData = computed(() => ({
     {
       label: 'Conversion Rate',
       data: chartView.value.conversions,
-      borderColor: '#34d399',
-      backgroundColor: 'rgba(52, 211, 153, 0.16)',
+      borderColor: isDark.value ? '#34d399' : '#059669',
+      backgroundColor: isDark.value ? 'rgba(52, 211, 153, 0.16)' : 'rgba(5, 150, 105, 0.13)',
       pointBackgroundColor: chartView.value.conversions.map((_, index) =>
         selectedChartIndex.value === -1 || selectedChartIndex.value === index
-          ? '#a7f3d0'
-          : 'rgba(52, 211, 153, 0.35)',
+          ? isDark.value ? '#a7f3d0' : '#059669'
+          : isDark.value ? 'rgba(52, 211, 153, 0.35)' : 'rgba(5, 150, 105, 0.45)',
       ),
-      pointBorderColor: '#ecfdf5',
+      pointBorderColor: isDark.value ? '#ecfdf5' : '#ffffff',
       pointRadius: chartView.value.conversions.map((_, index) =>
         selectedChartIndex.value === index ? 7 : 3,
       ),
@@ -290,21 +289,27 @@ const selectedValueLabelPlugin = {
 
     ctx.beginPath()
     ctx.roundRect(left, top, width, height, 6)
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.92)'
+    ctx.fillStyle = isDark.value ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.96)'
     ctx.fill()
-    ctx.strokeStyle = 'rgba(148, 163, 184, 0.3)'
+    ctx.strokeStyle = isDark.value ? 'rgba(148, 163, 184, 0.3)' : 'rgba(71, 85, 105, 0.25)'
     ctx.lineWidth = 1
     ctx.stroke()
 
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.font = '600 12px sans-serif'
-    ctx.fillStyle = '#e2e8f0'
+    ctx.fillStyle = isDark.value ? '#e2e8f0' : '#0f172a'
     ctx.fillText(valueLabel, left + width / 2, top + (changeLabel ? 13 : 14), width - padding)
 
     if (changeLabel) {
       ctx.font = '500 10px sans-serif'
-      ctx.fillStyle = delta! >= 0 ? '#86efac' : '#fca5a5'
+      ctx.fillStyle = delta! >= 0
+        ? isDark.value
+          ? '#86efac'
+          : `rgb(${getComputedStyle(chart.canvas).getPropertyValue('--v-theme-success')})`
+        : isDark.value
+          ? '#fca5a5'
+          : `rgb(${getComputedStyle(chart.canvas).getPropertyValue('--v-theme-on-surface-variant')})`
       ctx.fillText(changeLabel, left + width / 2, top + 30, width - padding)
     }
     ctx.restore()
@@ -313,7 +318,7 @@ const selectedValueLabelPlugin = {
 
 Chart.register(selectedValueLabelPlugin)
 
-const chartOptions = {
+const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
@@ -321,10 +326,10 @@ const chartOptions = {
       display: false,
     },
     tooltip: {
-      backgroundColor: 'rgba(15, 23, 42, 0.9)',
-      titleColor: '#f8fafc',
-      bodyColor: '#e2e8f0',
-      borderColor: 'rgba(148, 163, 184, 0.3)',
+      backgroundColor: isDark.value ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.98)',
+      titleColor: isDark.value ? '#f8fafc' : '#0f172a',
+      bodyColor: isDark.value ? '#e2e8f0' : '#334155',
+      borderColor: isDark.value ? 'rgba(148, 163, 184, 0.3)' : 'rgba(71, 85, 105, 0.25)',
       borderWidth: 1,
       displayColors: false,
       callbacks: {
@@ -345,26 +350,26 @@ const chartOptions = {
         display: false,
       },
       ticks: {
-        color: '#94a3b8',
+        color: isDark.value ? '#94a3b8' : '#64748b',
       },
     },
     y: {
       grid: {
-        color: 'rgba(148, 163, 184, 0.15)',
+        color: isDark.value ? 'rgba(148, 163, 184, 0.15)' : 'rgba(100, 116, 139, 0.18)',
       },
       ticks: {
-        color: '#94a3b8',
+        color: isDark.value ? '#94a3b8' : '#64748b',
       },
     },
   },
-}
+}))
 </script>
 
 <template>
   <v-app>
-    <v-app-bar flat class="px-4" color="surface" border>
+    <v-app-bar flat class="px-4 dashboard-app-bar" color="surface" border>
       <div class="d-flex align-center">
-        <span class="text-h6 font-weight-bold">Analytics Dashboard</span>
+        <span class="text-h6 font-weight-bold dashboard-title">Analytics Dashboard</span>
       </div>
 
       <v-spacer />
@@ -384,49 +389,35 @@ const chartOptions = {
       <v-btn
         icon
         variant="text"
-        class="ml-3"
+        class="ml-3 theme-toggle"
         @click="toggleTheme"
         :aria-label="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
       >
-        <v-icon>{{ isDark ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
+        <v-icon :icon="isDark ? 'mdi-weather-night' : 'mdi-weather-sunny'" size="18" />
       </v-btn>
     </v-app-bar>
 
     <v-main>
       <v-container fluid class="dashboard-shell">
-        <v-row class="mb-4" density="compact">
+        <v-row gap="12">
           <v-col v-for="card in statCards" :key="card.label" cols="12" sm="6" md="3">
-            <v-card class="stat-card" rounded="xl" elevation="0" color="surfaceVariant" border>
-              <v-card-text class="pa-5">
-                <div class="d-flex justify-space-between align-center mb-3">
-                  <div class="text-body-2 text-medium-emphasis">{{ card.label }}</div>
-                  <v-avatar :color="card.accent + '-lighten-3'" size="36" class="icon-badge">
-                    <v-icon :icon="card.icon" size="18" />
-                  </v-avatar>
-                </div>
-
-                <div class="text-h5 font-weight-bold mb-1">{{ card.value }}</div>
-                <div class="d-flex align-center gap-2">
-                  <span
-                    class="trend-pill"
-                    :class="card.direction >= 0 ? 'positive' : 'negative'"
-                  >
-                    <v-icon size="14">{{ card.direction >= 0 ? 'mdi-arrow-up' : 'mdi-arrow-down' }}</v-icon>
-                    {{ getTrendLabel(card.direction) }}
-                  </span>
-                  <span class="text-caption text-medium-emphasis">{{ card.helper }}</span>
-                </div>
-              </v-card-text>
-            </v-card>
+            <MetricCard
+              :label="card.label"
+              :icon="card.icon"
+              :value="card.value"
+              :direction="card.direction"
+              :accent="card.accent"
+              :helper="card.helper"
+            />
           </v-col>
         </v-row>
 
-        <v-row class="mb-4" density="compact">
+        <v-row gap="12">
           <v-col cols="12" lg="6">
             <v-card class="chart-card" rounded="xl" elevation="0" color="surfaceVariant" border>
-              <v-card-title class="d-flex justify-space-between align-center pb-2">
-                <span>Monthly Revenue</span>
-                <span class="text-caption text-medium-emphasis">
+              <v-card-title class="chart-card-title d-flex justify-space-between align-center pt-5 pb-2">
+                <span class="dashboard-card-title">Monthly Revenue</span>
+                <span class="dashboard-card-caption text-medium-emphasis">
                   {{ selectedMonth === 'All' ? 'Full year' : selectedMonth }}
                 </span>
               </v-card-title>
@@ -438,9 +429,9 @@ const chartOptions = {
 
           <v-col cols="12" lg="6">
             <v-card class="chart-card" rounded="xl" elevation="0" color="surfaceVariant" border>
-              <v-card-title class="d-flex justify-space-between align-center pb-2">
-                <span>Visitors</span>
-                <span class="text-caption text-medium-emphasis">
+              <v-card-title class="chart-card-title d-flex justify-space-between align-center pt-5 pb-2">
+                <span class="dashboard-card-title">Visitors</span>
+                <span class="dashboard-card-caption text-medium-emphasis">
                   {{ selectedMonth === 'All' ? '12-month trend' : selectedMonth }}
                 </span>
               </v-card-title>
@@ -451,12 +442,12 @@ const chartOptions = {
           </v-col>
         </v-row>
 
-        <v-row density="compact">
+        <v-row gap="12">
           <v-col cols="12">
             <v-card class="chart-card" rounded="xl" elevation="0" color="surfaceVariant" border>
-              <v-card-title class="d-flex justify-space-between align-center pb-2">
-                <span>Conversion Rate</span>
-                <span class="text-caption text-medium-emphasis">
+              <v-card-title class="chart-card-title d-flex justify-space-between align-center pt-5 pb-2">
+                <span class="dashboard-card-title">Conversion Rate</span>
+                <span class="dashboard-card-caption text-medium-emphasis">
                   {{ selectedMonth === 'All' ? 'Full year' : selectedMonth }}
                 </span>
               </v-card-title>
@@ -481,37 +472,31 @@ const chartOptions = {
   max-width: 180px;
 }
 
-.stat-card {
-  height: 100%;
-  background: rgba(15, 23, 42, 0.7);
+.month-picker :deep(.v-select__selection-text) {
+  font-size: 0.8125rem;
 }
 
-.icon-badge {
-  opacity: 0.9;
+.month-picker :deep(.v-icon) {
+  width: 16px !important;
+  height: 16px !important;
+  font-size: 16px !important;
 }
 
-.trend-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  border-radius: 999px;
-  padding: 4px 8px;
-  font-size: 0.73rem;
-  font-weight: 600;
+:global(.v-theme--light .dashboard-title),
+:global(.v-theme--light .chart-card-title) {
+  color: rgb(var(--v-theme-on-surface)) !important;
 }
 
-.trend-pill.positive {
-  background: rgba(52, 211, 153, 0.12);
-  color: #86efac;
+:global(.v-theme--light .month-picker .v-field__input),
+:global(.v-theme--light .month-picker .v-select__selection-text),
+:global(.v-theme--light .month-picker .v-icon),
+:global(.v-theme--light .theme-toggle) {
+  color: rgb(var(--v-theme-on-surface)) !important;
+  opacity: 1;
 }
 
-.trend-pill.negative {
-  background: rgba(248, 113, 113, 0.12);
-  color: #fca5a5;
-}
-
-.chart-card {
-  background: rgba(15, 23, 42, 0.68);
+:global(.v-theme--light .month-picker .v-field__outline) {
+  color: rgb(var(--v-theme-on-surface-variant)) !important;
 }
 
 .chart-panel {
